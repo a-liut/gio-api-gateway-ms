@@ -14,18 +14,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/a-liut/gio-api-gateway-ms/src/model"
+	"gio-api-gateway/pkg/config"
+	"gio-api-gateway/pkg/model"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
 
 type DeviceRepository struct {
-	DevicesServiceUrl string
+	devicesServiceUrl string
 }
 
 func (r *DeviceRepository) Get(id string) (*model.Device, error) {
-	u := fmt.Sprintf("%s/devices/%s", r.DevicesServiceUrl, id)
+	u := fmt.Sprintf("%s/devices/%s", r.devicesServiceUrl, id)
 
 	resp, err := http.Get(u)
 
@@ -52,7 +54,7 @@ func (r *DeviceRepository) Get(id string) (*model.Device, error) {
 }
 
 func (r *DeviceRepository) GetReadings(id string) ([]*model.Reading, error) {
-	u := fmt.Sprintf("%s/devices/%s/readings", r.DevicesServiceUrl, id)
+	u := fmt.Sprintf("%s/devices/%s/readings", r.devicesServiceUrl, id)
 
 	resp, err := http.Get(u)
 
@@ -79,7 +81,7 @@ func (r *DeviceRepository) GetReadings(id string) ([]*model.Reading, error) {
 }
 
 func (r *DeviceRepository) GetAll() ([]*model.Device, error) {
-	u := fmt.Sprintf("%s/devices", r.DevicesServiceUrl)
+	u := fmt.Sprintf("%s/devices", r.devicesServiceUrl)
 
 	resp, err := http.Get(u)
 
@@ -104,7 +106,7 @@ func (r *DeviceRepository) GetAll() ([]*model.Device, error) {
 }
 
 func (r *DeviceRepository) Insert(device *model.Device) (*model.Device, error) {
-	u := fmt.Sprintf("%s/devices", r.DevicesServiceUrl)
+	u := fmt.Sprintf("%s/devices", r.devicesServiceUrl)
 
 	b, err := json.Marshal(device)
 	if err != nil {
@@ -136,13 +138,16 @@ func (r *DeviceRepository) Insert(device *model.Device) (*model.Device, error) {
 
 var repo *DeviceRepository
 
-func NewDeviceRepository() (*DeviceRepository, error) {
+func NewDeviceRepository(serviceConfig *config.DeviceServiceConfig) (*DeviceRepository, error) {
 	if repo == nil {
-		u, err := url.Parse("http://gio-device-ms:5001")
+		u := fmt.Sprintf("http://%s:%d", serviceConfig.Host, serviceConfig.Port)
+		log.Printf("DeviceService URL: %s\n", u)
+
+		serviceUrl, err := url.Parse(u)
 		if err != nil {
 			return nil, err
 		}
-		repo = &DeviceRepository{u.String()}
+		repo = &DeviceRepository{serviceUrl.String()}
 	}
 
 	return repo, nil

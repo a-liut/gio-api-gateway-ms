@@ -11,7 +11,7 @@
 package api
 
 import (
-	"github.com/a-liut/gio-api-gateway-ms/src/logging"
+	"gio-api-gateway/pkg/logging"
 	"net/http"
 
 	"github.com/gorilla/mux"

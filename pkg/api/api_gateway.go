@@ -12,8 +12,8 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/a-liut/gio-api-gateway-ms/src/model"
-	"github.com/a-liut/gio-api-gateway-ms/src/repository"
+	"gio-api-gateway/pkg/model"
+	"gio-api-gateway/pkg/repository"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -29,7 +29,7 @@ func GetDeviceById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["deviceId"]
 
-	repo, _ := repository.NewDeviceRepository()
+	repo, _ := repository.NewDeviceRepository(nil)
 	device, err := repo.Get(id)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func GetDeviceById(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDevices(w http.ResponseWriter, r *http.Request) {
-	repo, _ := repository.NewDeviceRepository()
+	repo, _ := repository.NewDeviceRepository(nil)
 	devices, err := repo.GetAll()
 
 	if devices == nil {
@@ -67,7 +67,7 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := repository.NewDeviceRepository()
+	repo, _ := repository.NewDeviceRepository(nil)
 	newDevice, err := repo.Insert(&d)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["deviceId"]
 
-	repo, _ := repository.NewDeviceRepository()
+	repo, _ := repository.NewDeviceRepository(nil)
 	readings, err := repo.GetReadings(id)
 
 	if err != nil {
