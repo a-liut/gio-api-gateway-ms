@@ -52,8 +52,8 @@ func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) 
 	return &d, nil
 }
 
-func (r *DeviceRepository) GetReadings(roomId string, id string) ([]*model.Reading, error) {
-	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, roomId, id)
+func (r *DeviceRepository) GetReadings(roomId string, id string, limit int) ([]*model.Reading, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings?limit=%d", r.devicesServiceUrl, roomId, id, limit)
 
 	resp, err := http.Get(u)
 	defer resp.Body.Close()
