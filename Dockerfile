@@ -20,7 +20,6 @@ LABEL Name=gio-api-gateway-ms Version=1.0.0
 
 # Copy our static executable.
 COPY --from=builder /go/bin/apigateway /apigateway
-COPY --from=builder /apigateway/config.json /config.json
 
 EXPOSE 8080
 
