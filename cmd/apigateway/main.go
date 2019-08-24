@@ -11,12 +11,9 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"gio-api-gateway/pkg/api"
-	"gio-api-gateway/pkg/config"
-	"gio-api-gateway/pkg/repository"
 	"log"
 	"net/http"
 	"os"
@@ -24,13 +21,10 @@ import (
 
 func main() {
 	port := flag.Int("port", 8080, "port to be used")
-	configPath := flag.String("config", "config.json", "Configuration file")
 
 	flag.Parse()
 
-	if err := loadConfig(*configPath); err != nil {
-		panic(err)
-	}
+	checkVariables()
 
 	log.Printf("Server started on port %d", *port)
 
@@ -41,22 +35,11 @@ func main() {
 	log.Fatal(http.ListenAndServe(p, router))
 }
 
-func loadConfig(path string) error {
-	file, _ := os.Open(path)
-	defer file.Close()
-
-	var conf config.Config
-	if err := json.NewDecoder(file).Decode(&conf); err != nil {
-		return err
+func checkVariables() {
+	if deviceServiceHost := os.Getenv("DEVICE_SERVICE_HOST"); deviceServiceHost == "" {
+		panic("DEVICE_SERVICE_HOST not set.")
 	}
-
-	if _, err := repository.NewDeviceRepository(conf.DeviceServiceConfig); err != nil {
-		return err
+	if deviceServicePort := os.Getenv("DEVICE_SERVICE_PORT"); deviceServicePort == "" {
+		panic("DEVICE_SERVICE_PORT not set.")
 	}
-
-	if _, err := repository.NewRoomRepository(conf.DeviceServiceConfig); err != nil {
-		return err
-	}
-
-	return nil
 }

@@ -14,12 +14,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gio-api-gateway/pkg/config"
 	"gio-api-gateway/pkg/model"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type DeviceRepository struct {
@@ -166,9 +166,11 @@ func (r *DeviceRepository) InsertReading(roomId string, deviceId string, reading
 
 var devicesRepository *DeviceRepository
 
-func NewDeviceRepository(serviceConfig *config.DeviceServiceConfig) (*DeviceRepository, error) {
+func NewDeviceRepository() (*DeviceRepository, error) {
+	serviceHost := os.Getenv("DEVICE_SERVICE_HOST")
+	servicePort := os.Getenv("DEVICE_SERVICE_PORT")
 	if devicesRepository == nil {
-		u := fmt.Sprintf("http://%s:%d", serviceConfig.Host, serviceConfig.Port)
+		u := fmt.Sprintf("http://%s:%s", serviceHost, servicePort)
 		log.Printf("DeviceService URL: %s\n", u)
 
 		serviceUrl, err := url.Parse(u)

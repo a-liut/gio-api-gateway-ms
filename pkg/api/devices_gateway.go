@@ -24,7 +24,7 @@ func GetDeviceById(w http.ResponseWriter, r *http.Request) {
 	id := vars["deviceId"]
 	roomId := vars["roomId"]
 
-	repo, _ := repository.NewDeviceRepository(nil)
+	repo, _ := repository.NewDeviceRepository()
 	device, err := repo.Get(roomId, id)
 
 	if err != nil {
@@ -47,7 +47,7 @@ func GetDevices(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	roomId := vars["roomId"]
 
-	repo, _ := repository.NewDeviceRepository(nil)
+	repo, _ := repository.NewDeviceRepository()
 	devices, err := repo.GetAll(roomId)
 
 	if err != nil {
@@ -72,7 +72,7 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := repository.NewDeviceRepository(nil)
+	repo, _ := repository.NewDeviceRepository()
 	newDevice, err := repo.Insert(roomId, &d)
 
 	if err != nil {
@@ -91,7 +91,7 @@ func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	id := vars["deviceId"]
 	roomId := vars["roomId"]
 
-	repo, _ := repository.NewDeviceRepository(nil)
+	repo, _ := repository.NewDeviceRepository()
 	readings, err := repo.GetReadings(roomId, id)
 
 	if err != nil {
@@ -118,7 +118,7 @@ func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := repository.NewDeviceRepository(nil)
+	repo, _ := repository.NewDeviceRepository()
 	reading, err := repo.InsertReading(roomId, id, &readingData)
 
 	if err != nil {

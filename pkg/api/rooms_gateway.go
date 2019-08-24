@@ -23,7 +23,7 @@ func GetRoomById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	roomId := vars["roomId"]
 
-	repo, _ := repository.NewRoomRepository(nil)
+	repo, _ := repository.NewRoomRepository()
 	room, err := repo.Get(roomId)
 
 	if err != nil {
@@ -43,7 +43,7 @@ func GetRoomById(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRooms(w http.ResponseWriter, r *http.Request) {
-	repo, _ := repository.NewRoomRepository(nil)
+	repo, _ := repository.NewRoomRepository()
 	rooms, err := repo.GetAll()
 
 	if err != nil {
@@ -65,7 +65,7 @@ func CreateRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, _ := repository.NewRoomRepository(nil)
+	repo, _ := repository.NewRoomRepository()
 	room, err := repo.Insert(&roomData)
 
 	if err != nil {

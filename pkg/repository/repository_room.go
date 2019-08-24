@@ -14,12 +14,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gio-api-gateway/pkg/config"
 	"gio-api-gateway/pkg/model"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type RoomRepository struct {
@@ -112,9 +112,12 @@ func (r *RoomRepository) Insert(roomData *model.Room) (*model.Room, error) {
 
 var roomRepository *RoomRepository
 
-func NewRoomRepository(serviceConfig *config.DeviceServiceConfig) (*RoomRepository, error) {
+func NewRoomRepository() (*RoomRepository, error) {
+	serviceHost := os.Getenv("DEVICE_SERVICE_HOST")
+	servicePort := os.Getenv("DEVICE_SERVICE_PORT")
+
 	if roomRepository == nil {
-		u := fmt.Sprintf("http://%s:%d", serviceConfig.Host, serviceConfig.Port)
+		u := fmt.Sprintf("http://%s:%s", serviceHost, servicePort)
 		log.Printf("DeviceService URL: %s\n", u)
 
 		serviceUrl, err := url.Parse(u)
