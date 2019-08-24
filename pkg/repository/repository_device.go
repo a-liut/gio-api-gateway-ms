@@ -26,16 +26,15 @@ type DeviceRepository struct {
 	devicesServiceUrl string
 }
 
-func (r *DeviceRepository) Get(id string) (*model.Device, error) {
-	u := fmt.Sprintf("%s/devices/%s", r.devicesServiceUrl, id)
+func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) {
+	u := fmt.Sprintf("%s/rooms/%sdevices/%s", r.devicesServiceUrl, roomId, id)
 
 	resp, err := http.Get(u)
+	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, fmt.Errorf("device %s not found", id)
@@ -53,16 +52,15 @@ func (r *DeviceRepository) Get(id string) (*model.Device, error) {
 	return &d, nil
 }
 
-func (r *DeviceRepository) GetReadings(id string) ([]*model.Reading, error) {
-	u := fmt.Sprintf("%s/devices/%s/readings", r.devicesServiceUrl, id)
+func (r *DeviceRepository) GetReadings(roomId string, id string) ([]*model.Reading, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, roomId, id)
 
 	resp, err := http.Get(u)
+	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, fmt.Errorf("device %s not found", id)
@@ -80,16 +78,15 @@ func (r *DeviceRepository) GetReadings(id string) ([]*model.Reading, error) {
 	return rs, nil
 }
 
-func (r *DeviceRepository) GetAll() ([]*model.Device, error) {
-	u := fmt.Sprintf("%s/devices", r.devicesServiceUrl)
+func (r *DeviceRepository) GetAll(roomId string) ([]*model.Device, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices", r.devicesServiceUrl, roomId)
 
 	resp, err := http.Get(u)
+	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for devices")
@@ -105,8 +102,8 @@ func (r *DeviceRepository) GetAll() ([]*model.Device, error) {
 	return d, nil
 }
 
-func (r *DeviceRepository) Insert(device *model.Device) (*model.Device, error) {
-	u := fmt.Sprintf("%s/devices", r.devicesServiceUrl)
+func (r *DeviceRepository) Insert(roomId string, device *model.Device) (*model.Device, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices", r.devicesServiceUrl, roomId)
 
 	b, err := json.Marshal(device)
 	if err != nil {
@@ -114,12 +111,11 @@ func (r *DeviceRepository) Insert(device *model.Device) (*model.Device, error) {
 	}
 
 	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
+	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -136,10 +132,40 @@ func (r *DeviceRepository) Insert(device *model.Device) (*model.Device, error) {
 	return &d, nil
 }
 
-var repo *DeviceRepository
+func (r *DeviceRepository) InsertReading(roomId string, deviceId string, readingData *model.Reading) (*model.Reading, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, roomId, deviceId)
+
+	b, err := json.Marshal(readingData)
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
+	defer resp.Body.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("error while performing the operation: %d - %s - %s", resp.StatusCode, resp.Status, string(body))
+	}
+
+	var rea model.Reading
+	err = json.NewDecoder(resp.Body).Decode(&rea)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &rea, nil
+}
+
+var devicesRepository *DeviceRepository
 
 func NewDeviceRepository(serviceConfig *config.DeviceServiceConfig) (*DeviceRepository, error) {
-	if repo == nil {
+	if devicesRepository == nil {
 		u := fmt.Sprintf("http://%s:%d", serviceConfig.Host, serviceConfig.Port)
 		log.Printf("DeviceService URL: %s\n", u)
 
@@ -147,8 +173,8 @@ func NewDeviceRepository(serviceConfig *config.DeviceServiceConfig) (*DeviceRepo
 		if err != nil {
 			return nil, err
 		}
-		repo = &DeviceRepository{serviceUrl.String()}
+		devicesRepository = &DeviceRepository{serviceUrl.String()}
 	}
 
-	return repo, nil
+	return devicesRepository, nil
 }

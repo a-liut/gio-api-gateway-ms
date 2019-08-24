@@ -54,5 +54,9 @@ func loadConfig(path string) error {
 		return err
 	}
 
+	if _, err := repository.NewRoomRepository(conf.DeviceServiceConfig); err != nil {
+		return err
+	}
+
 	return nil
 }

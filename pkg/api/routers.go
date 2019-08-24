@@ -11,7 +11,9 @@
 package api
 
 import (
+	"encoding/json"
 	"gio-api-gateway/pkg/logging"
+	"gio-api-gateway/pkg/model"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -25,6 +27,12 @@ type Route struct {
 }
 
 type Routes []Route
+
+func errorHandler(w http.ResponseWriter, status int32, message string) {
+	r := model.ApiResponse{Code: status, Message: message}
+	w.WriteHeader(int(status))
+	json.NewEncoder(w).Encode(r)
+}
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
@@ -44,32 +52,61 @@ func NewRouter() *mux.Router {
 }
 
 var routes = Routes{
+	// Rooms
+	Route{
+		"GetRoomById",
+		[]string{http.MethodGet},
+		"/rooms/{roomId}",
+		GetRoomById,
+	},
 
+	Route{
+		"GetRooms",
+		[]string{http.MethodGet},
+		"/rooms",
+		GetRooms,
+	},
+
+	Route{
+		"CreateRoom",
+		[]string{http.MethodPost},
+		"/rooms",
+		CreateRoom,
+	},
+
+	// Devices
 	Route{
 		"GetDeviceById",
 		[]string{http.MethodGet},
-		"/devices/{deviceId}",
+		"/rooms/{roomId}/devices/{deviceId}",
 		GetDeviceById,
 	},
 
 	Route{
 		"GetDevices",
 		[]string{http.MethodGet},
-		"/devices",
+		"/rooms/{roomId}/devices",
 		GetDevices,
 	},
 
 	Route{
 		"CreateDevice",
 		[]string{http.MethodPost},
-		"/devices",
+		"/rooms/{roomId}/devices",
 		CreateDevice,
 	},
 
 	Route{
 		"GetDeviceReadings",
 		[]string{http.MethodGet},
-		"/devices/{deviceId}/readings",
+		"/rooms/{roomId}/devices/{deviceId}/readings",
 		GetDeviceReadings,
+	},
+
+	Route{
+		"CreateDeviceReadings",
+		[]string{http.MethodPost},
+		"/rooms/{roomId}/devices/{deviceId}/readings",
+		CreateDeviceReadings,
 	},
 }

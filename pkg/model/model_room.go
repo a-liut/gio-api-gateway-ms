@@ -14,32 +14,15 @@ import (
 	"fmt"
 )
 
-type Device struct {
+type Room struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	Mac  string `json:"mac"`
-	Room string `json:"room"`
 }
 
-func (i *Device) Validate() (bool, error) {
+func (i *Room) Validate() (bool, error) {
 	if i.Name == "" {
 		return false, fmt.Errorf("invalid name")
 	}
 
-	if i.Mac == "" {
-		return false, fmt.Errorf("invalid mac")
-	}
-
-	if i.Room == "" {
-		return false, fmt.Errorf("invalid room")
-	}
-
 	return true, nil
-}
-
-type Reading struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"`
-	Unit  string `json:"unit"`
 }
