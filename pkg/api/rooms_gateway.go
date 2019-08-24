@@ -27,7 +27,12 @@ func GetRoomById(w http.ResponseWriter, r *http.Request) {
 	room, err := repo.Get(roomId)
 
 	if err != nil {
-		errorHandler(w, http.StatusNotFound, err.Error())
+		errorHandler(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if room == nil {
+		errorHandler(w, http.StatusNotFound, "room not found")
 		return
 	}
 
@@ -41,8 +46,8 @@ func GetRooms(w http.ResponseWriter, r *http.Request) {
 	repo, _ := repository.NewRoomRepository(nil)
 	rooms, err := repo.GetAll()
 
-	if rooms == nil {
-		errorHandler(w, http.StatusNotFound, err.Error())
+	if err != nil {
+		errorHandler(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

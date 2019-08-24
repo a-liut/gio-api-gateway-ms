@@ -28,7 +28,12 @@ func GetDeviceById(w http.ResponseWriter, r *http.Request) {
 	device, err := repo.Get(roomId, id)
 
 	if err != nil {
-		errorHandler(w, http.StatusNotFound, err.Error())
+		errorHandler(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if device == nil {
+		errorHandler(w, http.StatusNotFound, "device not found")
 		return
 	}
 
@@ -45,7 +50,7 @@ func GetDevices(w http.ResponseWriter, r *http.Request) {
 	repo, _ := repository.NewDeviceRepository(nil)
 	devices, err := repo.GetAll(roomId)
 
-	if devices == nil {
+	if err != nil {
 		errorHandler(w, http.StatusNotFound, err.Error())
 		return
 	}

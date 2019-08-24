@@ -38,7 +38,7 @@ func (r *RoomRepository) Get(id string) (*model.Room, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("room %s not found", id)
+		return nil, nil
 	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for device %s", id)
 	}
@@ -64,7 +64,9 @@ func (r *RoomRepository) GetAll() ([]*model.Room, error) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode == 404 {
+		return []*model.Room{}, nil
+	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for devices")
 	}
 

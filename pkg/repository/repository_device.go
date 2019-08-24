@@ -37,7 +37,7 @@ func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) 
 	}
 
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("device %s not found", id)
+		return nil, nil
 	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for device %s", id)
 	}
@@ -63,7 +63,7 @@ func (r *DeviceRepository) GetReadings(roomId string, id string) ([]*model.Readi
 	}
 
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("device %s not found", id)
+		return nil, nil
 	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for device %s", id)
 	}
@@ -88,7 +88,9 @@ func (r *DeviceRepository) GetAll(roomId string) ([]*model.Device, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode == 404 {
+		return nil, nil
+	} else if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("error while getting data for devices")
 	}
 
