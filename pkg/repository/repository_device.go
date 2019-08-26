@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 type DeviceRepository struct {
@@ -52,8 +53,24 @@ func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) 
 	return &d, nil
 }
 
-func (r *DeviceRepository) GetReadings(roomId string, id string, limit int) ([]*model.Reading, error) {
-	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings?limit=%d", r.devicesServiceUrl, roomId, id, limit)
+func (r *DeviceRepository) GetReadings(roomId string, id string, limit int, name string) ([]*model.Reading, error) {
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, roomId, id)
+
+	var queryParams []string
+	if limit > 0 {
+		queryParams = append(queryParams, fmt.Sprintf("limit=%d", limit))
+	}
+
+	if name != "" {
+		queryParams = append(queryParams, fmt.Sprintf("name=%s", name))
+	}
+
+	// Add query params if needed
+	if len(queryParams) > 0 {
+		u = u + "?"
+
+		u = u + strings.Join(queryParams, "&")
+	}
 
 	resp, err := http.Get(u)
 	defer resp.Body.Close()

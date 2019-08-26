@@ -98,8 +98,10 @@ func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
 		limit = -1 // Take all readings
 	}
 
+	name := r.URL.Query().Get("name")
+
 	repo, _ := repository.NewDeviceRepository()
-	readings, err := repo.GetReadings(roomId, id, limit)
+	readings, err := repo.GetReadings(roomId, id, limit, name)
 
 	if err != nil {
 		errorHandler(w, http.StatusInternalServerError, err.Error())

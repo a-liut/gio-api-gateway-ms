@@ -113,6 +113,8 @@ Example:
     
     - limit(n): limit the results obtained to the last n entries stored
     
+    - name(s): filter the entries to those who have `s` as name
+    
     **POST**: register a new reading for the specified device.
     
     Example body:
