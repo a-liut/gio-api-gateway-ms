@@ -28,7 +28,7 @@ type DeviceRepository struct {
 }
 
 func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) {
-	u := fmt.Sprintf("%s/rooms/%sdevices/%s", r.devicesServiceUrl, roomId, id)
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s", r.devicesServiceUrl, roomId, id)
 
 	resp, err := http.Get(u)
 	defer resp.Body.Close()
