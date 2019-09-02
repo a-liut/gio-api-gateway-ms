@@ -183,7 +183,7 @@ func (r *DeviceRepository) InsertReading(roomId string, deviceId string, reading
 }
 
 func (r *DeviceRepository) TriggerAction(device *model.Device, actionName string) error {
-	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, device.Room, device.ID)
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/actions/%s", r.devicesServiceUrl, device.Room, device.ID, actionName)
 
 	resp, err := http.Post(u, "application/json", nil)
 	if err != nil {
