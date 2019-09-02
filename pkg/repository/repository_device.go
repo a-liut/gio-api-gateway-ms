@@ -31,11 +31,11 @@ func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) 
 	u := fmt.Sprintf("%s/rooms/%s/devices/%s", r.devicesServiceUrl, roomId, id)
 
 	resp, err := http.Get(u)
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, nil
@@ -73,11 +73,11 @@ func (r *DeviceRepository) GetReadings(roomId string, id string, limit int, name
 	}
 
 	resp, err := http.Get(u)
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, nil
@@ -99,11 +99,11 @@ func (r *DeviceRepository) GetAll(roomId string) ([]*model.Device, error) {
 	u := fmt.Sprintf("%s/rooms/%s/devices", r.devicesServiceUrl, roomId)
 
 	resp, err := http.Get(u)
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		return nil, nil
@@ -130,11 +130,11 @@ func (r *DeviceRepository) Insert(roomId string, device *model.Device) (*model.D
 	}
 
 	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -160,13 +160,14 @@ func (r *DeviceRepository) InsertReading(roomId string, deviceId string, reading
 	}
 
 	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
-	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(resp.Body)
 		return nil, fmt.Errorf("error while performing the operation: %d - %s - %s", resp.StatusCode, resp.Status, string(body))
 	}
@@ -179,6 +180,29 @@ func (r *DeviceRepository) InsertReading(roomId string, deviceId string, reading
 	}
 
 	return &rea, nil
+}
+
+func (r *DeviceRepository) TriggerAction(device *model.Device, actionName string) error {
+	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, device.Room, device.ID)
+
+	resp, err := http.Post(u, "application/json", nil)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var apiResp model.ApiResponse
+		err := json.NewDecoder(resp.Body).Decode(&apiResp)
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf(apiResp.Message)
+	}
+
+	return nil
 }
 
 var devicesRepository *DeviceRepository

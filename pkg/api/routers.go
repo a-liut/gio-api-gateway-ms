@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"gio-api-gateway/pkg/logging"
 	"gio-api-gateway/pkg/model"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -28,10 +29,12 @@ type Route struct {
 
 type Routes []Route
 
-func errorHandler(w http.ResponseWriter, status int32, message string) {
+func errorHandler(w http.ResponseWriter, status int, message string) {
 	r := model.ApiResponse{Code: status, Message: message}
-	w.WriteHeader(int(status))
-	json.NewEncoder(w).Encode(r)
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(r); err != nil {
+		log.Println(err)
+	}
 }
 
 func NewRouter() *mux.Router {
@@ -108,5 +111,12 @@ var routes = Routes{
 		[]string{http.MethodPost},
 		"/rooms/{roomId}/devices/{deviceId}/readings",
 		CreateDeviceReadings,
+	},
+
+	Route{
+		"TriggerDeviceAction",
+		[]string{http.MethodPost},
+		"/rooms/{roomId}/devices/{deviceId}/actions/{actionName}",
+		TriggerDeviceAction,
 	},
 }

@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"gio-api-gateway/pkg/model"
 	"gio-api-gateway/pkg/repository"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -41,7 +42,9 @@ func GetDeviceById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(device)
+	if err := json.NewEncoder(w).Encode(device); err != nil {
+		log.Println(err)
+	}
 }
 
 func GetDevices(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +62,9 @@ func GetDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(devices)
+	if err := json.NewEncoder(w).Encode(devices); err != nil {
+		log.Println(err)
+	}
 }
 
 func CreateDevice(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +89,9 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(newDevice)
+	if err := json.NewEncoder(w).Encode(newDevice); err != nil {
+		log.Println(err)
+	}
 }
 
 func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +123,9 @@ func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(readings)
+	if err := json.NewEncoder(w).Encode(readings); err != nil {
+		log.Println(err)
+	}
 }
 
 func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
@@ -133,8 +142,8 @@ func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo, _ := repository.NewDeviceRepository()
-	reading, err := repo.InsertReading(roomId, id, &readingData)
 
+	reading, err := repo.InsertReading(roomId, id, &readingData)
 	if err != nil {
 		errorHandler(w, http.StatusInternalServerError, err.Error())
 		return
@@ -143,5 +152,46 @@ func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(reading)
+	if err := json.NewEncoder(w).Encode(reading); err != nil {
+		log.Println(err)
+	}
+}
+
+func TriggerDeviceAction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["deviceId"]
+	roomId := vars["roomId"]
+	actionName := vars["actionName"]
+
+	repo, _ := repository.NewDeviceRepository()
+	device, err := repo.Get(roomId, id)
+
+	if err != nil {
+		errorHandler(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if device == nil {
+		errorHandler(w, http.StatusNotFound, "device not found")
+		return
+	}
+
+	err = repo.TriggerAction(device, actionName)
+	if err != nil {
+		errorHandler(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	code := http.StatusOK
+	w.WriteHeader(code)
+
+	res := model.ApiResponse{
+		Code:    code,
+		Message: "Action performed",
+	}
+
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Println(err)
+	}
 }
