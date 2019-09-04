@@ -38,8 +38,9 @@ func (i *Device) Validate() (bool, error) {
 }
 
 type Reading struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Value string `json:"value"`
-	Unit  string `json:"unit"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	Value             string `json:"value"`
+	Unit              string `json:"unit"`
+	CreationTimestamp string `json:"creation_timestamp"`
 }

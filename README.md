@@ -121,7 +121,8 @@ Example:
 {
   "name": "temperature",
   "value": "22",
-  "unit": "°C"
+  "unit": "°C",
+  "creation_timestamp": "yyyyyyy"
 }
 ```
 
