@@ -183,23 +183,13 @@ func (r *DeviceRepository) InsertReading(roomId string, deviceId string, reading
 }
 
 func (r *DeviceRepository) TriggerAction(device *model.Device, actionName string) error {
-	u := fmt.Sprintf("%s/rooms/%s/devices/%s/actions/%s", r.devicesServiceUrl, device.Room, device.ID, actionName)
-
-	resp, err := http.Post(u, "application/json", nil)
+	driver, err := GetSmartDriverManager(device.Room)
 	if err != nil {
 		return err
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		var apiResp model.ApiResponse
-		err := json.NewDecoder(resp.Body).Decode(&apiResp)
-		if err != nil {
-			return err
-		}
-
-		return fmt.Errorf(apiResp.Message)
+	if err = driver.TriggerAction(device, actionName); err != nil {
+		return err
 	}
 
 	return nil
@@ -210,16 +200,73 @@ var devicesRepository *DeviceRepository
 func NewDeviceRepository() (*DeviceRepository, error) {
 	serviceHost := os.Getenv("DEVICE_SERVICE_HOST")
 	servicePort := os.Getenv("DEVICE_SERVICE_PORT")
-	if devicesRepository == nil {
-		u := fmt.Sprintf("http://%s:%s", serviceHost, servicePort)
-		log.Printf("DeviceService URL: %s\n", u)
 
-		serviceUrl, err := url.Parse(u)
-		if err != nil {
+	if devicesRepository == nil {
+		serviceUrl := fmt.Sprintf("http://%s:%s", serviceHost, servicePort)
+		log.Printf("DeviceService URL: %s\n", serviceUrl)
+
+		if _, err := url.Parse(serviceUrl); err != nil {
 			return nil, err
 		}
-		devicesRepository = &DeviceRepository{serviceUrl.String()}
+
+		devicesRepository = &DeviceRepository{
+			devicesServiceUrl: serviceUrl,
+		}
 	}
 
 	return devicesRepository, nil
+}
+
+type DeviceDriverManager struct {
+	url string
+}
+
+func (manager *DeviceDriverManager) TriggerAction(device *model.Device, actionName string) error {
+	u := fmt.Sprintf("%s/devices/%s/actions/%s", manager.url, device.Mac, actionName)
+	resp, err := http.Post(u, "application/json", nil)
+
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+
+		// Get error response
+		var bodyData model.ApiResponse
+		err := json.NewDecoder(resp.Body).Decode(&bodyData)
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("cannot trigger action: (%d) %s", resp.StatusCode, bodyData.Message)
+	}
+
+	return nil
+}
+
+var driverManager *DeviceDriverManager = nil
+
+func GetSmartDriverManager(roomId string) (*DeviceDriverManager, error) {
+	if driverManager == nil {
+		// TODO: check the room to route correctly the message
+
+		deviceDriverHost := os.Getenv("DEVICE_DRIVER_HOST")
+		deviceDriverPort := os.Getenv("DEVICE_DRIVER_PORT")
+
+		u := fmt.Sprintf("http://%s:%s", deviceDriverHost, deviceDriverPort)
+		log.Printf("DeviceDriver URL: %s\n", u)
+
+		_, err := url.Parse(u)
+		if err != nil {
+			return nil, err
+		}
+
+		driverManager = &DeviceDriverManager{
+			url: u,
+		}
+	}
+
+	return driverManager, nil
 }
