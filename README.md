@@ -35,10 +35,12 @@ go build -o apigateway cmd/apigateway/main.go
 A Device represents a physical device registered in the system. Each device is identified by an ID.
 A Device must be related to an existing room.
 
-#### Fields
+A Device has the followings fields:
 
+- id: *string* - The UUID of the object
 - name: *string* - The name of the device.
 - mac: *string* -  The MAC address of the device. Must be unique.
+- room *string* - The UUID of the room in which the device is placed
 
 Example:
 
@@ -55,8 +57,9 @@ Example:
 
 A Room is a (possibly empty) collection of devices.
 
-#### Fields
+A Room has the following fields:
 
+- id: *string* - The UUID of the object
 - name: *string* - The name of the room.
 
 Example:
@@ -75,6 +78,7 @@ Example:
     **GET**: return all registered rooms.
 
     **POST**: register a new room.
+    
     Example body:
 ```json
 {
@@ -128,6 +132,3 @@ Example:
 - ### /rooms/{roomId}/devices/{deviceId}/actions/{actionName}
 
     **POST**: Triggers the specified action on a specific device
-
-## TODO
-- add API spec
