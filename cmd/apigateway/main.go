@@ -32,7 +32,7 @@ func main() {
 
 	p := fmt.Sprintf(":%d", *port)
 
-	log.Fatal(http.ListenAndServe(p, router))
+	log.Fatal(http.ListenAndServe(p, *router))
 }
 
 func checkVariables() {

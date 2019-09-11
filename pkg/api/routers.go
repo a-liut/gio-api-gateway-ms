@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"gio-api-gateway/pkg/logging"
 	"gio-api-gateway/pkg/model"
+	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
 
@@ -37,7 +38,7 @@ func errorHandler(w http.ResponseWriter, status int, message string) {
 	}
 }
 
-func NewRouter() *mux.Router {
+func NewRouter() *http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
 		var handler http.Handler
@@ -51,7 +52,13 @@ func NewRouter() *mux.Router {
 			Handler(handler)
 	}
 
-	return router
+	corsHandler := handlers.CORS(
+		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+	)(router)
+
+	return &corsHandler
 }
 
 var routes = Routes{
