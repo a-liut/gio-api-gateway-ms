@@ -119,13 +119,20 @@ Example:
     Example body:
 ```json
 {
-  "name": "temperature",
-  "value": "22",
-  "unit": "°C",
-  "creation_timestamp": "yyyyyyy"
+    "name": "temperature",
+    "value": "22",
+    "unit": "°C",
+    "creation_timestamp": "yyyyyyy"
 }
 ```
 
 - ### /rooms/{roomId}/devices/{deviceId}/actions/{actionName}
 
-    **POST**: Triggers the specified action on a specific device
+    **POST**: Triggers the specified action on a specific device. It allows send a value with the request.
+    
+    Example body:
+```json
+{
+    "value": "22"
+}
+```

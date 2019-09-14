@@ -157,15 +157,31 @@ func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getActionData(r *http.Request) *model.ActionData {
+	var actionData model.ActionData
+	err := json.NewDecoder(r.Body).Decode(&actionData)
+	if err != nil {
+		return nil
+	}
+
+	return &actionData
+}
+
 func TriggerDeviceAction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["deviceId"]
 	roomId := vars["roomId"]
 	actionName := vars["actionName"]
 
+	log.Printf("TriggerDeviceAction called: %s", actionName)
+
+	actionData := getActionData(r)
+	if actionData == nil {
+		log.Printf("WARNING: no data passed for action %s", actionName)
+	}
+
 	repo, _ := repository.NewDeviceRepository()
 	device, err := repo.Get(roomId, id)
-
 	if err != nil {
 		errorHandler(w, http.StatusInternalServerError, err.Error())
 		return
@@ -176,7 +192,7 @@ func TriggerDeviceAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repo.TriggerAction(device, actionName)
+	err = repo.TriggerAction(device, actionName, actionData)
 	if err != nil {
 		errorHandler(w, http.StatusInternalServerError, err.Error())
 		return

@@ -44,3 +44,7 @@ type Reading struct {
 	Unit              string `json:"unit"`
 	CreationTimestamp string `json:"creation_timestamp"`
 }
+
+type ActionData struct {
+	Value int `json:"value"`
+}
