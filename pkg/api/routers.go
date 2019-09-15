@@ -63,12 +63,6 @@ func NewRouter() *http.Handler {
 
 var routes = Routes{
 	// Rooms
-	Route{
-		"GetRoomById",
-		[]string{http.MethodGet},
-		"/rooms/{roomId}",
-		GetRoomById,
-	},
 
 	Route{
 		"GetRooms",
@@ -84,13 +78,14 @@ var routes = Routes{
 		CreateRoom,
 	},
 
-	// Devices
 	Route{
-		"GetDeviceById",
+		"GetRoomById",
 		[]string{http.MethodGet},
-		"/rooms/{roomId}/devices/{deviceId}",
-		GetDeviceById,
+		"/rooms/{roomId}",
+		GetRoomById,
 	},
+
+	// Devices
 
 	Route{
 		"GetDevices",
@@ -104,6 +99,13 @@ var routes = Routes{
 		[]string{http.MethodPost},
 		"/rooms/{roomId}/devices",
 		CreateDevice,
+	},
+
+	Route{
+		"GetDeviceById",
+		[]string{http.MethodGet},
+		"/rooms/{roomId}/devices/{deviceId}",
+		GetDeviceById,
 	},
 
 	Route{
