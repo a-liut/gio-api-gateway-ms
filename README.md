@@ -1,6 +1,6 @@
 # gio-api-gateway-ms
 The API Gateway component is a microservice that provides an entry point for the whole Giò Plants platform.
-It expose all the functionalities of the system to clients and the Frontend microservice.
+It exposes all the functionalities of the system to clients and the Frontend microservice.
 
 ## Run
 
@@ -128,7 +128,7 @@ Example:
 
 - ### /rooms/{roomId}/devices/{deviceId}/actions/{actionName}
 
-    **POST**: Triggers the specified action on a specific device. It allows send a value with the request.
+    **POST**: Triggers the specified action on a specific device. It allows sending a value with the request.
     
     Example body:
 ```json
@@ -136,3 +136,5 @@ Example:
     "value": "22"
 }
 ```
+
+    WARNING: always specify a body when requesting 'watering' action with a positive number as value.
