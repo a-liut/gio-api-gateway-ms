@@ -11,11 +11,9 @@
 package repository
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"gio-api-gateway/pkg/model"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -78,36 +76,6 @@ func (r *RoomRepository) GetAll() ([]*model.Room, error) {
 	}
 
 	return rooms, nil
-}
-
-func (r *RoomRepository) Insert(roomData *model.Room) (*model.Room, error) {
-	u := fmt.Sprintf("%s/rooms", r.devicesServiceUrl)
-
-	b, err := json.Marshal(roomData)
-	if err != nil {
-		panic(err)
-	}
-
-	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
-	defer resp.Body.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("error while performing the operation: %d - %s - %s", resp.StatusCode, resp.Status, string(body))
-	}
-
-	var room model.Room
-	err = json.NewDecoder(resp.Body).Decode(&room)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &room, nil
 }
 
 var roomRepository *RoomRepository

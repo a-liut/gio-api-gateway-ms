@@ -73,13 +73,14 @@ Example:
 
     **GET**: return all registered rooms.
 
-    **POST**: register a new room.
-    
-    Example body:
+    Example response:
 ```json
-{
-  "name": "Room1"
-}
+[
+    {
+        "id": "ae6b260b-4760-41d8-8a82-f2145b939ad3",
+        "name": "default"
+    }
+]
 ```
 
 - ### /rooms/{roomId}
@@ -89,14 +90,12 @@ Example:
 - ### /rooms/{roomId}/devices
 
     **GET**: return all registered devices belonging a specific room.
-
-    **POST**: register a new device in a specific room.
     
-    Example body:
+    Example response:
 ```json
 {
-  "mac": "f6:f1:bb:06:31:71",
-  "name": "device1"
+    "id": "ae6b260b-4760-41d8-8a82-f2145b939ad3",
+    "name": "default"
 }
 ```
 
@@ -113,8 +112,6 @@ Example:
     - limit(n): limit the results obtained to the last n entries stored
     
     - name(s): filter the entries to those who have `s` as name
-    
-    **POST**: register a new reading for the specified device.
     
     Example body:
 ```json

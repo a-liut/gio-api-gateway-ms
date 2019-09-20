@@ -55,7 +55,12 @@ func GetDevices(w http.ResponseWriter, r *http.Request) {
 	devices, err := repo.GetAll(roomId)
 
 	if err != nil {
-		errorHandler(w, http.StatusNotFound, err.Error())
+		errorHandler(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if devices == nil {
+		errorHandler(w, http.StatusNotFound, "room not found")
 		return
 	}
 
@@ -63,33 +68,6 @@ func GetDevices(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(devices); err != nil {
-		log.Println(err)
-	}
-}
-
-func CreateDevice(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	roomId := vars["roomId"]
-
-	var d model.Device
-	err := json.NewDecoder(r.Body).Decode(&d)
-	if err != nil {
-		errorHandler(w, http.StatusBadRequest, "Invalid data")
-		return
-	}
-
-	repo, _ := repository.NewDeviceRepository()
-	newDevice, err := repo.Insert(roomId, &d)
-
-	if err != nil {
-		errorHandler(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(newDevice); err != nil {
 		log.Println(err)
 	}
 }
@@ -124,35 +102,6 @@ func GetDeviceReadings(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(readings); err != nil {
-		log.Println(err)
-	}
-}
-
-func CreateDeviceReadings(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["deviceId"]
-	roomId := vars["roomId"]
-
-	var readingData model.Reading
-
-	err := json.NewDecoder(r.Body).Decode(&readingData)
-	if err != nil {
-		errorHandler(w, http.StatusBadRequest, "Invalid data")
-		return
-	}
-
-	repo, _ := repository.NewDeviceRepository()
-
-	reading, err := repo.InsertReading(roomId, id, &readingData)
-	if err != nil {
-		errorHandler(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(reading); err != nil {
 		log.Println(err)
 	}
 }
@@ -194,7 +143,7 @@ func TriggerDeviceAction(w http.ResponseWriter, r *http.Request) {
 
 	err = repo.TriggerAction(device, actionName, actionData)
 	if err != nil {
-		errorHandler(w, http.StatusInternalServerError, err.Error())
+		errorHandler(w, http.StatusBadRequest, err.Error())
 		return
 	}
 

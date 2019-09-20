@@ -12,7 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"gio-api-gateway/pkg/model"
 	"gio-api-gateway/pkg/repository"
 	"net/http"
 
@@ -55,26 +54,4 @@ func GetRooms(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(rooms)
-}
-
-func CreateRoom(w http.ResponseWriter, r *http.Request) {
-	var roomData model.Room
-	err := json.NewDecoder(r.Body).Decode(&roomData)
-	if err != nil {
-		errorHandler(w, http.StatusBadRequest, "Invalid data")
-		return
-	}
-
-	repo, _ := repository.NewRoomRepository()
-	room, err := repo.Insert(&roomData)
-
-	if err != nil {
-		errorHandler(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	json.NewEncoder(w).Encode(room)
 }

@@ -72,13 +72,6 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateRoom",
-		[]string{http.MethodPost},
-		"/rooms",
-		CreateRoom,
-	},
-
-	Route{
 		"GetRoomById",
 		[]string{http.MethodGet},
 		"/rooms/{roomId}",
@@ -95,13 +88,6 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateDevice",
-		[]string{http.MethodPost},
-		"/rooms/{roomId}/devices",
-		CreateDevice,
-	},
-
-	Route{
 		"GetDeviceById",
 		[]string{http.MethodGet},
 		"/rooms/{roomId}/devices/{deviceId}",
@@ -113,13 +99,6 @@ var routes = Routes{
 		[]string{http.MethodGet},
 		"/rooms/{roomId}/devices/{deviceId}/readings",
 		GetDeviceReadings,
-	},
-
-	Route{
-		"CreateDeviceReadings",
-		[]string{http.MethodPost},
-		"/rooms/{roomId}/devices/{deviceId}/readings",
-		CreateDeviceReadings,
 	},
 
 	Route{

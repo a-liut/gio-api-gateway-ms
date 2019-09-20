@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"gio-api-gateway/pkg/model"
 	"gio-api-gateway/pkg/utils"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -38,9 +37,9 @@ func (r *DeviceRepository) Get(roomId string, id string) (*model.Device, error) 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		return nil, nil
-	} else if resp.StatusCode != 200 {
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error while getting data for device %s", id)
 	}
 
@@ -80,9 +79,9 @@ func (r *DeviceRepository) GetReadings(roomId string, id string, limit int, name
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		return nil, nil
-	} else if resp.StatusCode != 200 {
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error while getting data for device %s", id)
 	}
 
@@ -106,9 +105,9 @@ func (r *DeviceRepository) GetAll(roomId string) ([]*model.Device, error) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		return nil, nil
-	} else if resp.StatusCode != 200 {
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error while getting data for devices")
 	}
 
@@ -120,67 +119,6 @@ func (r *DeviceRepository) GetAll(roomId string) ([]*model.Device, error) {
 	}
 
 	return d, nil
-}
-
-func (r *DeviceRepository) Insert(roomId string, device *model.Device) (*model.Device, error) {
-	u := fmt.Sprintf("%s/rooms/%s/devices", r.devicesServiceUrl, roomId)
-
-	b, err := json.Marshal(device)
-	if err != nil {
-		panic(err)
-	}
-
-	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("error while performing the operation: %d - %s - %s", resp.StatusCode, resp.Status, string(body))
-	}
-
-	var d model.Device
-	err = json.NewDecoder(resp.Body).Decode(&d)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &d, nil
-}
-
-func (r *DeviceRepository) InsertReading(roomId string, deviceId string, readingData *model.Reading) (*model.Reading, error) {
-	u := fmt.Sprintf("%s/rooms/%s/devices/%s/readings", r.devicesServiceUrl, roomId, deviceId)
-
-	b, err := json.Marshal(readingData)
-	if err != nil {
-		panic(err)
-	}
-
-	resp, err := http.Post(u, "application/json", bytes.NewBuffer(b))
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("error while performing the operation: %d - %s - %s", resp.StatusCode, resp.Status, string(body))
-	}
-
-	var rea model.Reading
-	err = json.NewDecoder(resp.Body).Decode(&rea)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &rea, nil
 }
 
 func getActionBodyData(data *model.ActionData) *bytes.Buffer {
