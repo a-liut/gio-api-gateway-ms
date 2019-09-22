@@ -69,7 +69,7 @@ Example:
 
 ## Endpoints
 
-- ### /rooms
+- /rooms
 
     **GET**: return all registered rooms.
 
@@ -83,11 +83,11 @@ Example:
 ]
 ```
 
-- ### /rooms/{roomId}
+- /rooms/{roomId}
 
     **GET**: return the specified room.
     
-- ### /rooms/{roomId}/devices
+- /rooms/{roomId}/devices
 
     **GET**: return all registered devices belonging a specific room.
     
@@ -99,11 +99,11 @@ Example:
 }
 ```
 
-- ### /rooms/{roomId}/devices/{deviceId}
+- /rooms/{roomId}/devices/{deviceId}
 
     **GET**: return the specified device of a specific room.
 
-- ### /rooms/{roomId}/devices/{deviceId}/readings
+- /rooms/{roomId}/devices/{deviceId}/readings
 
     **GET**: return all readings of the specified devices in a specific room.
     
@@ -123,7 +123,7 @@ Example:
 }
 ```
 
-- ### /rooms/{roomId}/devices/{deviceId}/actions/{actionName}
+- /rooms/{roomId}/devices/{deviceId}/actions/{actionName}
 
     **POST**: Triggers the specified action on a specific device. It allows sending a value with the request.
     
